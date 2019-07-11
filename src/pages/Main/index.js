@@ -1,5 +1,11 @@
 import React, { Component } from 'react';
-import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa';
+import {
+  FaGithubAlt,
+  FaPlus,
+  FaSpinner,
+  FaRedoAlt,
+  FaTrashAlt,
+} from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 import api from '../../services/api';
@@ -37,34 +43,59 @@ export default class Main extends Component {
   handleSubmit = async e => {
     e.preventDefault();
 
-    this.setState({ loading: true });
+    this.setState({ loading: true, error: false });
 
-    const { newRepo, repositories } = this.state;
+    try {
+      const { newRepo, repositories } = this.state;
 
-    const response = await api.get(`/repos/${newRepo}`);
+      if (newRepo === '') throw 'Você precisar escrever o nome do repositório';
 
-    const data = {
-      name: response.data.full_name,
-    };
+      const hasRepo = repositories.find(r => r.name === newRepo);
 
-    this.setState({
-      repositories: [...repositories, data],
-      newRepo: '',
-      loading: false,
-    });
+      if (hasRepo) throw 'repositório duplicado';
+
+      const response = await api.get(`/repos/${newRepo}`);
+
+      const data = {
+        name: response.data.full_name,
+      };
+
+      this.setState({
+        repositories: [...repositories, data],
+        newRepo: '',
+        loading: false,
+      });
+    } catch (error) {
+      this.setState({ error: true });
+    } finally {
+      this.setState({ loading: false });
+    }
+  };
+
+  handleRefresh = e => {
+    this.setState({ loading: false, error: false, newRepo: '' });
   };
 
   render() {
-    const { newRepo, loading, repositories } = this.state;
+    const { newRepo, loading, repositories, error } = this.state;
 
     return (
       <Container>
-        <h1>
-          <FaGithubAlt />
-          Repositórios
-        </h1>
+        <div>
+          <h1>
+            <FaGithubAlt />
+            Repositórios
+          </h1>
 
-        <Form onSubmit={this.handleSubmit}>
+          <FaRedoAlt
+            size={18}
+            color={'#7159c1'}
+            onClick={this.handleRefresh}
+            className="refresh"
+          />
+        </div>
+
+        <Form onSubmit={this.handleSubmit} error={error}>
           <input
             type="text"
             placeholder="Adicionar Repositório"
@@ -85,9 +116,14 @@ export default class Main extends Component {
           {repositories.map(repository => (
             <li key={repository.name}>
               <span>{repository.name}</span>
-              <Link to={`/repository/${encodeURIComponent(repository.name)}`}>
-                Detalhes
-              </Link>
+              <div>
+                <Link to={`/repository/${encodeURIComponent(repository.name)}`}>
+                  Detalhes
+                </Link>
+                <a href="">
+                  <FaTrashAlt />
+                </a>
+              </div>
             </li>
           ))}
         </List>

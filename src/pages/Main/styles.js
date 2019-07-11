@@ -7,10 +7,12 @@ export const Form = styled.form`
 
   input {
     flex: 1;
-    border: 1px solid #eee;
+    border: 1px solid ${props => (props.error ? '#dc143c' : '#eee')};
     padding: 10px 15px;
     border-radius: 4px;
     font-size: 16px;
+
+    transition: border 0.25s ease-out;
   }
 `;
 
@@ -70,6 +72,11 @@ export const List = styled.ul`
     a {
       color: #7159c1;
       text-decoration: none;
+      margin-right: 15px;
+
+      &:hover {
+        color: #999;
+      }
     }
   }
 `;

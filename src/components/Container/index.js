@@ -8,6 +8,17 @@ const Container = styled.div`
   padding: 30px;
   margin: 80px auto;
 
+  div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    .refresh {
+      cursor: pointer;
+    }
+  }
+
   h1 {
     font-size: 20px;
     display: flex;
